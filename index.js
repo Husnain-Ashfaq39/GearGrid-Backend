@@ -1,28 +1,20 @@
 const express = require('express');
+const dotenv = require('dotenv');
 const path = require('path');
 const connectDB = require('./config/dbconfig');
 
-const app = express();
-const port = 3000;
+// Load environment variables
+dotenv.config();
 
-// Set EJS as the templating engine (optional)
-app.set('view engine', 'ejs');
-
-// Middleware for serving static files
-app.use(express.static(path.join(__dirname, 'public')));
-
-// Parse JSON and URL-encoded data
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// Import routes
-const indexRoutes = require('./routes/index');
-app.use('/', indexRoutes);
-
-// Connect to MongoDB
+// Connect to database
 connectDB();
 
-// Start the server
-app.listen(port, () => {
-  console.log(`Server is running at http://localhost:${port}`);
+const app = express();
+
+// Middleware
+app.use(express.json()); // Parse incoming JSON requests
+
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
