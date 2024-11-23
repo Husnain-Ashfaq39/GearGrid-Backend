@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const connectDB = require('./config/dbconfig');
 
 const app = express();
 const port = 3000;
@@ -17,6 +18,9 @@ app.use(express.urlencoded({ extended: true }));
 // Import routes
 const indexRoutes = require('./routes/index');
 app.use('/', indexRoutes);
+
+// Connect to MongoDB
+connectDB();
 
 // Start the server
 app.listen(port, () => {
