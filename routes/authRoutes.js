@@ -1,5 +1,6 @@
 const express = require('express');
-const { login, register } = require('../controllers/authController');
+const authController = require('../Controller/authController'); // Changed import to the full module
+const { login, register } = authController; // Destructure after importing
 
 const router = express.Router();
 

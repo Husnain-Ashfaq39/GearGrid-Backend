@@ -2,6 +2,7 @@ const express = require('express');
 const dotenv = require('dotenv');
 const path = require('path');
 const connectDB = require('./config/dbconfig');
+const authRoutes = require('./routes/authRoutes');
 
 // Load environment variables
 dotenv.config();
@@ -13,6 +14,9 @@ const app = express();
 
 // Middleware
 app.use(express.json()); // Parse incoming JSON requests
+
+// Apply Routes
+app.use('/api/auth', authRoutes);
 
 
 
