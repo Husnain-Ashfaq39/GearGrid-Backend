@@ -1,5 +1,6 @@
 // Helper function to upload images to Cloudinary
-export const uploadImagesToCloudinary = async (files) => {
+const  cloudinary = require('./config/cloudinaryConfig')
+const uploadImagesToCloudinary = async (files) => {
     const uploadedImages = [];
   
     for (const file of files) {
@@ -28,7 +29,7 @@ export const uploadImagesToCloudinary = async (files) => {
   };
 
   // Helper function to delete images from Cloudinary using secure_url
-export const deleteImageFromCloudinary = async (secureUrl) => {
+ const deleteImageFromCloudinary = async (secureUrl) => {
     try {
       // Extract public_id from secure_url
       const publicId = secureUrl.split('/').pop().split('.')[0]; // Extracts public_id from URL
@@ -47,7 +48,7 @@ export const deleteImageFromCloudinary = async (secureUrl) => {
 
   
   // Helper function to fetch image details from Cloudinary using secure_url
-export const getImageDetails = async (secureUrl) => {
+const getImageDetails = async (secureUrl) => {
     try {
       // Extract public_id from secure_url
       const publicId = secureUrl.split('/').pop().split('.')[0];
@@ -63,7 +64,7 @@ export const getImageDetails = async (secureUrl) => {
 
   
   // Helper function to list images in a folder
-export const listImagesInFolder = async (folderName) => {
+ const listImagesInFolder = async (folderName) => {
     try {
       const result = await cloudinary.api.resources({
         type: 'upload',
@@ -78,4 +79,9 @@ export const listImagesInFolder = async (folderName) => {
     }
   };
   
-  
+  module.exports = {
+    uploadImagesToCloudinary,
+    deleteImageFromCloudinary,
+    getImageDetails,
+    listImagesInFolder
+};

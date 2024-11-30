@@ -5,9 +5,8 @@ const connectDB = require('./config/dbconfig');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes'); // Import userRoutes
 const productRoutes = require('./routes/productRoutes');
+const categoryRoutes = require('./routes/categoryRoutes');
 const auth = require('./middlewares/auth'); // Import auth middleware
-
-
 const cors = require('cors');
 
 
@@ -45,6 +44,7 @@ app.use(cors({
 
 // Apply Routes
 app.use('/api/auth', authRoutes);
+app.use('/categories', categoryRoutes);
 app.use('/user',auth,userRoutes);
 
 const PORT = process.env.PORT || 5000;

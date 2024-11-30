@@ -1,4 +1,3 @@
-// controllers/productController.js
 const { uploadImagesToCloudinary } = require('../cloudinaryServices');
 const Product = require('../models/Products'); // Adjust path as needed
 
@@ -62,4 +61,96 @@ const addProduct = async (req, res) => {
   }
 };
 
-module.exports = { addProduct };
+// Controller function to get all products
+const getAllProducts = async (req, res) => {
+  try {
+    const products = await Product.find();
+    return res.status(200).json(products);
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    return res.status(500).json({ message: 'Failed to fetch products', error: error.message });
+  }
+};
+
+// Controller function to update a product
+const updateProduct = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const {
+      name,
+      description,
+      price,
+      discountPrice,
+      stockQuantity,
+      categoryId,
+      tags,
+      isOnSale,
+      barcode,
+      taxExclusivePrice,
+      tax,
+      bannerLabel,
+      lowStockAlert,
+    } = req.body;
+
+    // Check if product exists
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    // Upload new images to Cloudinary if files exist
+    let uploadedImages = product.images;
+    if (req.files && req.files.length > 0) {
+      uploadedImages = await uploadImagesToCloudinary(req.files);
+    }
+
+    // Calculate final price including tax
+    const taxAmount = (parseFloat(taxExclusivePrice) * parseFloat(tax)) / 100;
+    const finalPrice = parseFloat(taxExclusivePrice) + taxAmount;
+
+    // Update product data
+    product.name = name || product.name;
+    product.description = description || product.description;
+    product.price = finalPrice || product.price;
+    product.discountPrice = discountPrice || product.discountPrice;
+    product.stockQuantity = parseInt(stockQuantity, 10) || product.stockQuantity;
+    product.categoryId = categoryId || product.categoryId;
+    product.images = uploadedImages;
+    product.tags = tags ? tags.split(',').map((tag) => tag.trim()) : product.tags;
+    product.isOnSale = isOnSale !== undefined ? isOnSale === 'true' : product.isOnSale;
+    product.barcode = barcode || product.barcode;
+    product.taxExclusivePrice = parseFloat(taxExclusivePrice) || product.taxExclusivePrice;
+    product.tax = parseFloat(tax) || product.tax;
+    product.bannerLabel = bannerLabel || product.bannerLabel;
+    product.lowStockAlert = lowStockAlert ? parseInt(lowStockAlert, 10) : product.lowStockAlert;
+
+    // Save updated product
+    await product.save();
+    
+    return res.status(200).json({ message: 'Product updated successfully', product });
+  } catch (error) {
+    console.error('Error updating product:', error);
+    return res.status(500).json({ message: 'Failed to update product', error: error.message });
+  }
+};
+
+// Controller function to delete a product
+const deleteProduct = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    
+    // Find and delete the product by ID
+    const product = await Product.findByIdAndDelete(productId);
+    
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    return res.status(200).json({ message: 'Product deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting product:', error);
+    return res.status(500).json({ message: 'Failed to delete product', error: error.message });
+  }
+};
+
+module.exports = { addProduct, getAllProducts, updateProduct, deleteProduct };
