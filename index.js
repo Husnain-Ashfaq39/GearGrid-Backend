@@ -4,6 +4,7 @@ const bodyParser = require('body-parser');
 const connectDB = require('./config/dbconfig');
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes'); // Import userRoutes
+const productRoutes = require('./routes/productRoutes');
 const auth = require('./middlewares/auth'); // Import auth middleware
 
 
@@ -39,7 +40,7 @@ app.use(cors({
     origin: '*',  // Allow requests from any origin
     methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allow these HTTP methods
     allowedHeaders: ['Content-Type', 'Authorization']  // Allow these headers
-  }));
+}));
 
 
 // Apply Routes
