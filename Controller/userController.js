@@ -5,7 +5,7 @@ const bcrypt = require('bcryptjs');
 exports.getUserById = async (req, res) => {
     try {
         const userId = req.params.id;
-        const user = await User.findById(userId).select('name email role _id'); // Select only name, email, role, and _id
+        const user = await User.findById(userId).select('name email role _id location phone'); // Select only name, email, role, and _id
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -16,29 +16,99 @@ exports.getUserById = async (req, res) => {
     }
 };
 
-// // Change Password
-// exports.changePassword = async (req, res) => {
-//     try {
-//         const userId = req.params.id;
-//         const { oldPassword, newPassword } = req.body;
+// Update User
+exports.updateUser = async (req, res) => {
+    try {
+        console.log("request body " + JSON.stringify(req.body)); // Log the entire request body
+        const userId = req.params.id;
+        const updates = req.body; // Get the updates from the request body
 
-//         const user = await User.findById(userId);
-//         if (!user) {
-//             return res.status(404).json({ message: 'User not found' });
-//         }
+        // Check if any field is added before updating
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
 
-//         const isMatch = await bcrypt.compare(oldPassword, user.password);
-//         if (!isMatch) {
-//             return res.status(400).json({ message: 'Old password is incorrect' });
-//         }
+        let updatedFields = [];
 
-//         const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-//         user.password = hashedNewPassword;
-//         await user.save();
+        // Use existing email or name if not provided in the updates
+        if (!updates.email) {
+            updates.email = user.email; // Use the existing email
+        } else {
+            updatedFields.push('email');
+        }
+        if (!updates.name) {
+            updates.name = user.name; // Use the existing name
+        } else {
+            updatedFields.push('name');
+        }
 
-//         res.status(200).json({ message: 'Password changed successfully' });
-//     } catch (error) {
-//         console.error("Error changing password:", error);
-//         res.status(500).json({ error: 'Server error while changing password' });
-//     }
-// };
+        // Update only the fields that are present in the request body
+        Object.keys(updates).forEach(key => {
+            if (updates[key] !== undefined) {
+                user[key] = updates[key];
+                updatedFields.push(key);
+            }
+        });
+
+        await user.save(); // Save the updated user
+
+        // Create a dynamic message based on updated fields
+        const message = updatedFields.length > 0 
+            ? updatedFields.map(field => `User ${field} updated successfully`).join('. ') 
+            : 'No fields were updated';
+
+        res.status(200).json({ message: 'Profile updated successfully', user }); // Send the dynamic message
+    } catch (error) {
+        console.error("Error updating user:", error);
+        res.status(500).json({ error: 'Server error while updating user' });
+    }
+};
+
+exports.changePassword = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const { oldPassword, newPassword, confirmNewPassword } = req.body;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const isMatch = await bcrypt.compare(oldPassword, user.password);
+        if (!isMatch) {
+            return res.status(400).json({ message: 'Old password is incorrect' });
+        }
+
+        if (newPassword !== confirmNewPassword) {
+            return res.status(400).json({ message: 'New passwords do not match' });
+        }
+
+        const hashedNewPassword = await bcrypt.hash(newPassword, 10);
+        user.password = hashedNewPassword;
+        await user.save();
+
+        res.status(200).json({ message: 'Password changed successfully' });
+    } catch (error) {
+        console.error("Error changing password:", error);
+        res.status(500).json({ error: 'Server error while changing password' });
+    }
+};
+
+
+// Get User by ID
+exports.getUserData = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const user = await User.findById(userId).select('name email role _id location phone'); // Select only name, email, role, and _id
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json(user);
+    } catch (error) {
+        console.error("Error fetching user:", error);
+        res.status(500).json({ error: 'Server error while fetching user' });
+    }
+};
+
+
