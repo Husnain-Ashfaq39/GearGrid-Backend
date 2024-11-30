@@ -1,8 +1,9 @@
 const express = require('express');
 const dotenv = require('dotenv');
-const path = require('path');
+const bodyParser = require('body-parser');
 const connectDB = require('./config/dbconfig');
-
+const productRoutes = require('./routes/product');
+const cors = require('cors');
 // Load environment variables
 dotenv.config();
 
@@ -10,10 +11,16 @@ dotenv.config();
 connectDB();
 
 const app = express();
-
+// Enable CORS for all origins
+app.use(cors({
+    origin: '*',  // Allow requests from any origin
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],  // Allow these HTTP methods
+    allowedHeaders: ['Content-Type', 'Authorization']  // Allow these headers
+  }));
 // Middleware
-app.use(express.json()); // Parse incoming JSON requests
-
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use('/api/products', productRoutes);
 
 
 
