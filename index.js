@@ -48,6 +48,7 @@ app.use('/api/auth', authRoutes);
 app.use('/categories', categoryRoutes);
 app.use('/user',auth,userRoutes);
 app.use('/cloudinary',auth,cloudinaryRoutes);
+app.use('/GeneralData',auth,cloudinaryRoutes);
 
 
 const PORT = process.env.PORT || 5000;
