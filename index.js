@@ -8,6 +8,7 @@ const productRoutes = require('./routes/productRoutes');
 const categoryRoutes = require('./routes/categoryRoutes');
 const auth = require('./middlewares/auth'); // Import auth middleware
 const cors = require('cors');
+const cloudinaryRoutes= require('./routes/cloudinaryRoutes')
 
 
 // Load environment variables
@@ -46,6 +47,8 @@ app.use(cors({
 app.use('/api/auth', authRoutes);
 app.use('/categories', categoryRoutes);
 app.use('/user',auth,userRoutes);
+app.use('/cloudinary',auth,cloudinaryRoutes);
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
