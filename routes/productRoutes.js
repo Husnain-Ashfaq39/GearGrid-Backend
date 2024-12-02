@@ -15,9 +15,11 @@ router.post('/add-product', upload.array('images', 10), productController.addPro
 router.get('/all', productController.getAllProducts);
 
 // PUT route to update a product
-router.put('/update/:id', upload.array('images', 10), productController.updateProduct);
+router.put('/update/:id',  productController.updateProduct);
 
 // DELETE route to delete a product
 router.delete('/delete/:id', productController.deleteProduct);
+
+router.get('/:id', productController.getProductById);
 
 module.exports = router;

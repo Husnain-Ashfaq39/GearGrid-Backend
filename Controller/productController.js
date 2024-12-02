@@ -90,6 +90,7 @@ const updateProduct = async (req, res) => {
       tax,
       bannerLabel,
       lowStockAlert,
+      images
     } = req.body;
 
     // Check if product exists
@@ -98,11 +99,7 @@ const updateProduct = async (req, res) => {
       return res.status(404).json({ message: 'Product not found' });
     }
 
-    // Upload new images to Cloudinary if files exist
-    let uploadedImages = product.images;
-    if (req.files && req.files.length > 0) {
-      uploadedImages = await uploadImagesToCloudinary(req.files);
-    }
+   
 
     // Calculate final price including tax
     const taxAmount = (parseFloat(taxExclusivePrice) * parseFloat(tax)) / 100;
@@ -115,7 +112,7 @@ const updateProduct = async (req, res) => {
     product.discountPrice = discountPrice || product.discountPrice;
     product.stockQuantity = parseInt(stockQuantity, 10) || product.stockQuantity;
     product.categoryId = categoryId || product.categoryId;
-    product.images = uploadedImages;
+    product.images = images;
     product.tags = tags ? tags.split(',').map((tag) => tag.trim()) : product.tags;
     product.isOnSale = isOnSale !== undefined ? isOnSale === 'true' : product.isOnSale;
     product.barcode = barcode || product.barcode;
@@ -153,4 +150,25 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-module.exports = { addProduct, getAllProducts, updateProduct, deleteProduct };
+// Controller function to get a product by its ID
+const getProductById = async (req, res) => {
+  try {
+    const productId = req.params.id;
+
+    // Find product by ID
+    const product = await Product.findById(productId);
+    
+    // If product not found
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    return res.status(200).json(product);
+  } catch (error) {
+    console.error('Error fetching product by ID:', error);
+    return res.status(500).json({ message: 'Failed to fetch product', error: error.message });
+  }
+};
+
+
+module.exports = { addProduct, getAllProducts, updateProduct, deleteProduct, getProductById };
