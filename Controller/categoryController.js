@@ -80,6 +80,37 @@ const updateCategory = async (req, res) => {
   }
 };
 
+const getCategoriesWithPagination = async (req, res) => {
+  const { page = 1, limit = 10 } = req.query; // Default to page 1 and limit 10
+  const skip = (page - 1) * limit;
+
+  try {
+    console.log(`Fetching categories for page ${page} with limit ${limit}...`); // Debug log
+
+    // Fetch categories with pagination
+    const categories = await Categories.find()
+      .skip(skip)
+      .limit(parseInt(limit));
+
+    const totalCategories = await Categories.countDocuments(); // Get total count for pagination
+    const totalPages = Math.ceil(totalCategories / limit);
+
+    console.log(`Categories fetched successfully: ${categories.length} items`); // Debug log
+
+    // Return the categories and pagination info as a JSON response
+    res.status(200).json({
+      totalCategories,
+      totalPages,
+      currentPage: page,
+      categories,
+    });
+  } catch (error) {
+    console.error('Error fetching categories with pagination:', error); // More detailed error log
+    res.status(500).send('Error fetching categories with pagination'); // Return appropriate error message
+  }
+};
+
+
 module.exports = {
   addCategory,
   getAllCategories,
