@@ -4,10 +4,27 @@ const GeneralData = require('../models/GeneralData');
 exports.updateGeneralData = async (req, res) => {
     try {
         const updates = req.body; // Get the updates from the request body
-        const generalData = await GeneralData.findOne(); // Assuming there's only one document for general data
 
+        // Try to find the existing general data document
+        let generalData = await GeneralData.findOne(); 
+
+        // If no document is found, create the general data with default values
         if (!generalData) {
-            return res.status(404).json({ message: 'General data not found' });
+            const dummyData = {
+                logo: "",
+                facebook: "https://www.facebook.com",
+                twitter: "https://www.twitter.com",
+                instagram: "https://www.instagram.com",
+                linkedin: "https://www.linkedin.com",
+                terms: "<p>Default Terms and Conditions.</p>",
+            };
+
+            // Create and save the new document with dummy data
+            generalData = new GeneralData(dummyData);
+            await generalData.save();
+            console.log('dummy data saved');
+            
+            return res.status(201).json(generalData); // Return the newly created document with dummy data
         }
 
         // Update only the fields that are present in the request body
@@ -17,7 +34,8 @@ exports.updateGeneralData = async (req, res) => {
             }
         });
 
-        await generalData.save(); // Save the updated document
+        // Save the updated document
+        await generalData.save();
         res.status(200).json(generalData); // Return the updated document
     } catch (error) {
         console.error("Error updating general data:", error);
@@ -25,15 +43,30 @@ exports.updateGeneralData = async (req, res) => {
     }
 };
 
+
 // Get General Data
 exports.getGeneralData = async (req, res) => {
     try {
-        const generalData = await GeneralData.findOne(); // Assuming there's only one document for general data
+        let generalData = await GeneralData.findOne(); // Assuming there's only one document for general data
 
+        // If no document is found, create the general data with default values
         if (!generalData) {
-            return res.status(404).json({ message: 'General data not found' });
+            const dummyData = {
+                logo: "",
+                facebook: "https://www.facebook.com",
+                twitter: "https://www.twitter.com",
+                instagram: "https://www.instagram.com",
+                linkedin: "https://www.linkedin.com",
+                terms: "<p>Default Terms and Conditions.</p>",
+            };
+
+            // Create and save the new document with dummy data
+            generalData = new GeneralData(dummyData);
+            await generalData.save();
+            return res.status(201).json(generalData); // Return the newly created document with dummy data
         }
 
+        // If general data exists, return it
         res.status(200).json(generalData); // Return the general data
     } catch (error) {
         console.error("Error fetching general data:", error);

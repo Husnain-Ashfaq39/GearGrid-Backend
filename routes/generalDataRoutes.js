@@ -4,7 +4,8 @@ const { updateGeneralData, getGeneralData } = generalDataController; // Destruct
 
 const router = express.Router();
 
+router.post('/', updateGeneralData);      // Update General Data API
 router.put('/', updateGeneralData);      // Update General Data API
-router.get('/', getGeneralData);          // Get General Data API
+router.get('/all', getGeneralData);          // Get General Data API
 
 module.exports = router;
