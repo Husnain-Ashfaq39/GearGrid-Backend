@@ -170,5 +170,39 @@ const getProductById = async (req, res) => {
   }
 };
 
+// Controller function to get related products by category ID
+const getRelatedProducts = async (req, res) => {
+  try {
+    const productId = req.params.id;
+
+    // Validate product ID
+    if (!productId) {
+      return res.status(400).json({ message: 'Product ID is required' });
+    }
+
+    // Find the product by ID to get its category ID
+    const product = await Product.findById(productId);
+
+    // If product not found
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    // Find other products in the same category
+    const relatedProducts = await Product.find({ categoryId: product.categoryId, _id: { $ne: productId } });
+
+    return res.status(200).json(relatedProducts);
+  } catch (error) {
+    if (error.name === 'CastError') {
+      console.error('Invalid product ID format:', error);
+      return res.status(400).json({ message: 'Invalid product ID format', error: error.message });
+    }
+    console.error('Error fetching related products:', error);
+    return res.status(500).json({ message: 'Failed to fetch related products', error: error.message });
+  }
+};
+
+
+
 
 module.exports = { addProduct, getAllProducts, updateProduct, deleteProduct, getProductById };

@@ -22,4 +22,7 @@ router.delete('/delete/:id', productController.deleteProduct);
 
 router.get('/:id', productController.getProductById);
 
+// GET route to fetch related products
+router.get('/related/:id', productController.getRelatedProducts);
+
 module.exports = router;
