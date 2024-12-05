@@ -120,6 +120,7 @@ const updateProduct = async (req, res) => {
     product.tax = parseFloat(tax) || product.tax;
     product.bannerLabel = bannerLabel || product.bannerLabel;
     product.lowStockAlert = lowStockAlert ? parseInt(lowStockAlert, 10) : product.lowStockAlert;
+  
 
     // Save updated product
     await product.save();

@@ -12,6 +12,8 @@ const cloudinaryRoutes= require('./routes/cloudinaryRoutes')
 const generalDataRoutes= require('./routes/generalDataRoutes')
 const subscriberRoutes = require('./routes/subscriberRoutes'); // Import the subscriber routes
 const contactUsRoutes = require('./routes/contactUsRoutes');
+const paymentRoutes = require('./routes/paymentRoutes');
+const orderRoutes = require('./routes/orderRoutes'); // Import orderRoutes
 
 
 // Load environment variables
@@ -51,6 +53,8 @@ app.use('/GeneralData',generalDataRoutes);
 app.use('/api/products', productRoutes);
 app.use('/subscribers', subscriberRoutes); // Use the subscriber routes
 app.use('/contactus', contactUsRoutes);
+app.use('/api/payment', paymentRoutes);
+app.use('/orders', orderRoutes); // Use the order routes
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
