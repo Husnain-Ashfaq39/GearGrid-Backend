@@ -61,11 +61,40 @@ const addProduct = async (req, res) => {
   }
 };
 
-// Controller function to get all products
+// Controller function to get all products with pagination
 const getAllProducts = async (req, res) => {
   try {
-    const products = await Product.find();
-    return res.status(200).json(products);
+    // Get pagination parameters from query with defaults
+    const page = parseInt(req.query.page) || 1; // Default to first page
+    const limit = parseInt(req.query.limit) || 10; // Default to 10 items per page
+    
+    // Calculate skip value for pagination
+    const skip = (page - 1) * limit;
+
+    // Get total count of products
+    const totalProducts = await Product.countDocuments();
+    
+    // Calculate total pages
+    const totalPages = Math.ceil(totalProducts / limit);
+
+    // Fetch paginated products
+    const products = await Product.find()
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 }); // Optional: sort by creation date, newest first
+
+    // Return paginated response
+    return res.status(200).json({
+      products,
+      pagination: {
+        currentPage: page,
+        totalPages,
+        pageSize: limit,
+        totalItems: totalProducts,
+        hasNextPage: page < totalPages,
+        hasPrevPage: page > 1
+      }
+    });
   } catch (error) {
     console.error('Error fetching products:', error);
     return res.status(500).json({ message: 'Failed to fetch products', error: error.message });
@@ -161,9 +190,10 @@ const getProductById = async (req, res) => {
     
     // If product not found
     if (!product) {
+      console.log('Product not found');
       return res.status(404).json({ message: 'Product not found' });
     }
-
+    console.log('Product fetched successfully');
     return res.status(200).json(product);
   } catch (error) {
     console.error('Error fetching product by ID:', error);
@@ -171,5 +201,37 @@ const getProductById = async (req, res) => {
   }
 };
 
+// Controller function to get related products by category ID
+const getRelatedProducts = async (req, res) => {
+  try {
+    const productId = req.params.id;
 
-module.exports = { addProduct, getAllProducts, updateProduct, deleteProduct, getProductById };
+    // Validate product ID
+    if (!productId) {
+      return res.status(400).json({ message: 'Product ID is required' });
+    }
+
+    // Find the product by ID to get its category ID
+    const product = await Product.findById(productId);
+
+    // If product not found
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    // Find other products in the same category
+    const relatedProducts = await Product.find({ categoryId: product.categoryId, _id: { $ne: productId } });
+
+    return res.status(200).json(relatedProducts);
+  } catch (error) {
+    if (error.name === 'CastError') {
+      console.error('Invalid product ID format:', error);
+      return res.status(400).json({ message: 'Invalid product ID format', error: error.message });
+    }
+    console.error('Error fetching related products:', error);
+    return res.status(500).json({ message: 'Failed to fetch related products', error: error.message });
+  }
+};
+
+
+module.exports = { addProduct, getAllProducts, updateProduct, deleteProduct, getProductById ,getRelatedProducts};

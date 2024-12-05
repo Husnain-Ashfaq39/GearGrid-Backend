@@ -14,6 +14,7 @@ const subscriberRoutes = require('./routes/subscriberRoutes'); // Import the sub
 const contactUsRoutes = require('./routes/contactUsRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const orderRoutes = require('./routes/orderRoutes'); // Import orderRoutes
+const reviewRoutes = require('./routes/reviewRoutes');
 
 
 // Load environment variables
@@ -41,9 +42,6 @@ app.use((req, res, next) => {
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-
-
-
 // Apply Routes
 app.use('/api/auth', authRoutes);
 app.use('/categories', categoryRoutes);
@@ -55,6 +53,8 @@ app.use('/subscribers', subscriberRoutes); // Use the subscriber routes
 app.use('/contactus', contactUsRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/orders', orderRoutes); // Use the order routes
+app.use('/reviews', reviewRoutes); // Changed from /review to /reviews
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
