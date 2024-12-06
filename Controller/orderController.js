@@ -32,4 +32,14 @@ exports.getOrderById = async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
-}; 
+};
+
+// Controller to get total number of orders
+exports.getTotalOrders = async (req, res) => {
+    try {
+        const totalOrders = await Order.countDocuments();
+        res.status(200).json({ totalOrders });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
