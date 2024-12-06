@@ -2,14 +2,14 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// Register User
+
 exports.register = async (req, res) => {
     try {
         console.log("Request coming");
         const { name, email, password, confirmPassword } = req.body;
         console.log("Registration req", name);
 
-        // Validate input
+       
         if (!name || !email || !password || !confirmPassword) {
             console.error("Validation error: All fields are required");
             return res.status(400).json({ message: 'All fields are required' });
