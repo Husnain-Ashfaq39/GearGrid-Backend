@@ -233,5 +233,136 @@ const getRelatedProducts = async (req, res) => {
   }
 };
 
+// Get trending products based on order quantities
+const getTrendingProducts = async (req, res) => {
+  try {
+    const OrderItems = require('../models/OrderItems');
+    const Products = require('../models/Products');
 
-module.exports = { addProduct, getAllProducts, updateProduct, deleteProduct, getProductById ,getRelatedProducts};
+    // Aggregate order items to get total quantities for each product
+    const trendingProducts = await OrderItems.aggregate([
+      {
+        $group: {
+          _id: '$productId',
+          totalQuantity: { $sum: '$quantity' },
+          productName: { $first: '$productName' }
+        }
+      },
+      {
+        $sort: { totalQuantity: -1 }
+      },
+      {
+        $limit: 10 // Limit to top 10 trending products
+      }
+    ]);
+
+    // Get full product details for the trending products
+    const productIds = trendingProducts.map(item => item._id);
+    const fullProductDetails = await Products.find({
+      _id: { $in: productIds }
+    });
+
+    // Combine quantity data with full product details
+    const result = fullProductDetails.map(product => {
+      const trendingData = trendingProducts.find(
+        item => item._id === product._id.toString()
+      );
+      return {
+        ...product.toObject(),
+        totalQuantitySold: trendingData.totalQuantity
+      };
+    });
+
+    // Sort by quantity sold (highest to lowest)
+    result.sort((a, b) => b.totalQuantitySold - a.totalQuantitySold);
+
+    res.status(200).json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching trending products',
+      error: error.message
+    });
+  }
+};
+
+// Get highest rated products based on reviews
+const getTopRatedProducts = async (req, res) => {
+  try {
+    const Reviews = require('../models/Reviews');
+    const Products = require('../models/Products');
+
+    // Aggregate reviews to calculate average rating for each product
+    const topRatedProducts = await Reviews.aggregate([
+      {
+        $group: {
+          _id: '$productId',
+          averageRating: { $avg: '$rating' },
+          totalReviews: { $sum: 1 }
+        }
+      },
+      {
+        $match: {
+          totalReviews: { $gte: 3 }  // Only include products with at least 3 reviews
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          averageRating: { $round: ['$averageRating', 1] }  // Round to 1 decimal place
+        }
+      },
+      {
+        $sort: { averageRating: -1 }
+      },
+      {
+        $limit: 10  // Limit to top 10 rated products
+      }
+    ]);
+
+    // Get full product details for the top rated products
+    const productIds = topRatedProducts.map(item => item._id);
+    const fullProductDetails = await Products.find({
+      _id: { $in: productIds }
+    });
+
+    // Combine rating data with full product details
+    const result = fullProductDetails.map(product => {
+      const ratingData = topRatedProducts.find(
+        item => item._id.toString() === product._id.toString()
+      );
+      return {
+        ...product.toObject(),
+        averageRating: ratingData.averageRating
+      };
+    });
+
+    // Sort by average rating
+    result.sort((a, b) => b.averageRating - a.averageRating);
+
+    res.status(200).json({
+      success: true,
+      data: result
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching top rated products',
+      error: error.message
+    });
+  }
+};
+
+module.exports = {
+  addProduct,
+  getAllProducts,
+  updateProduct,
+  deleteProduct,
+  getProductById,
+  getRelatedProducts,
+  getTrendingProducts,
+  getTopRatedProducts
+};

@@ -32,10 +32,20 @@ router.put('/update/:id',  productController.updateProduct);
 // Delete a product by ID
 router.delete('/delete/:id', productController.deleteProduct);
 
-router.get('/:id', productController.getProductById);
+// GET /api/products/trending
+// Get trending products based on order quantities
+router.get('/trending', productController.getTrendingProducts);
+
+// GET /api/products/top-rated
+// Get highest rated products based on reviews
+router.get('/top-rated', productController.getTopRatedProducts);
 
 // GET /api/products/related/:id
 // Get related products for a specific product
 router.get('/related/:id', productController.getRelatedProducts);
+
+// GET /api/products/:id
+// Get a single product by ID
+router.get('/:id', productController.getProductById);
 
 module.exports = router;
