@@ -12,6 +12,6 @@ router.get('/:id', orderItemsController.getOrderItem);
 router.delete('/:id', orderItemsController.deleteOrderItem);
 
 // Route to get all order items
-router.get('/all', orderItemsController.getAllOrderItems);
+router.get('/', orderItemsController.getAllOrderItems);
 
 module.exports = router; 

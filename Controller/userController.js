@@ -132,3 +132,14 @@ exports.getUserData = async (req, res) => {
         res.status(500).json({ error: 'Server error while fetching user' });
     }
 };
+
+exports.getAllCustomers = async (req, res) => {
+    try {
+        const customers = await User.find(); // Assuming you have a User model
+        res.status(200).json(customers);
+    } catch (error) {
+        res.status(500).json({ message: 'Error retrieving customers', error });
+    }
+};
+
+
