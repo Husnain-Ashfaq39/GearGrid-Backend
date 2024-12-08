@@ -1,5 +1,6 @@
 const { uploadImagesToCloudinary } = require('../cloudinaryServices');
-const Product = require('../models/Products'); // Adjust path as needed
+const Product = require('../models/Products'); 
+const Wishlist = require('../models/Wishlist'); // Adjust path as needed
 
 // Controller function to handle adding a new product
 const addProduct = async (req, res) => {
@@ -356,6 +357,107 @@ const getTopRatedProducts = async (req, res) => {
   }
 };
 
+// Add product to wishlist
+const addToWishlist = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const userId = req.body.userId; // Assuming user info is added by auth middleware
+    console.log('userid', userId);
+    console.log('productid', productId);
+
+    // Check if product exists
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
+
+    // Find user's wishlist or create new one
+    let wishlist = await Wishlist.findOne({ userId });
+    if (!wishlist) {
+      wishlist = new Wishlist({ userId, productIds: [] });
+    }
+
+    // Convert productIds to strings for comparison
+    const productIdString = productId.toString();
+    const productIdsInWishlist = wishlist.productIds.map((id) => id.toString());
+
+    // Check if product is already in wishlist
+    if (productIdsInWishlist.includes(productIdString)) {
+      return res.status(400).json({ message: 'Product already in wishlist' });
+    }
+
+    // Add product to wishlist
+    wishlist.productIds.push(productId);
+    await wishlist.save();
+
+    res.status(200).json({ message: 'Product added to wishlist', wishlist });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Error adding product to wishlist', error: error.message });
+  }
+};
+
+
+// Remove product from wishlist
+const removeFromWishlist = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const userId = req.body.userId;  // Get userId from request body
+    console.log("User ID:", userId);
+    console.log("Product ID:", productId);
+
+    const wishlist = await Wishlist.findOne({ userId });
+    console.log("Wishlist found:", wishlist);
+    if (!wishlist) {
+      return res.status(404).json({ message: 'Wishlist not found' });
+    }
+
+    // Convert productIds to strings for comparison
+    const productIdString = productId.toString();
+    const updatedProductIds = wishlist.productIds.filter(id => id.toString() !== productIdString);
+    wishlist.productIds = updatedProductIds;
+    
+    await wishlist.save();
+    console.log("Updated wishlist:", wishlist);
+
+    res.status(200).json({ message: 'Product removed from wishlist', wishlist });
+  } catch (error) {
+    console.error("Error in removeFromWishlist:", error);
+    res.status(500).json({ message: 'Error removing product from wishlist', error: error.message });
+  }
+};
+
+// Get all wishlist items
+const getWishlistItems = async (req, res) => {
+  try {
+    // Return empty products array if no user is authenticated
+   
+
+    const userId = req.params.userId;
+    console.log("User ID from request:", userId);
+
+    const wishlist = await Wishlist.findOne({ userId });
+    console.log("Wishlist found:", wishlist);
+
+    if (!wishlist) {
+      console.log("No wishlist found for user");
+      return res.status(200).json({ products: [] });
+    }
+
+    console.log("Product IDs in wishlist:", wishlist.productIds);
+
+    // Get all products in wishlist
+    const products = await Product.find({ _id: { $in: wishlist.productIds } });
+    console.log("Products found:", products.length);
+    console.log("Full products data:", JSON.stringify(products, null, 2));
+
+    res.status(200).json(JSON.stringify(products, null, 2));
+  } catch (error) {
+    console.error("Error in getWishlistItems:", error);
+    res.status(400).json({ products: [] }); // Return empty array on error
+  }
+};
+
 module.exports = {
   addProduct,
   getAllProducts,
@@ -364,5 +466,8 @@ module.exports = {
   getProductById,
   getRelatedProducts,
   getTrendingProducts,
-  getTopRatedProducts
+  getTopRatedProducts,
+  addToWishlist,
+  removeFromWishlist,
+  getWishlistItems
 };

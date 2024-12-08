@@ -17,7 +17,6 @@ const orderRoutes = require('./routes/orderRoutes'); // Import orderRoutes
 const reviewRoutes = require('./routes/reviewRoutes');
 const orderItemsRoutes = require('./routes/orderItemsRoutes');
 
-
 // Load environment variables
 dotenv.config();
 
@@ -55,10 +54,8 @@ app.use('/contactus', contactUsRoutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/orders', orderRoutes); // Use the order routes
 app.use('/reviews', reviewRoutes); // Changed from /review to /reviews
-app.use('/orderitems', orderItemsRoutes);
-
-
-
+app.use('/api/orderItems', orderItemsRoutes);
+app.use('/api/wishlist', productRoutes);  // Using productRoutes for wishlist endpoints
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
