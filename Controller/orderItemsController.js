@@ -39,9 +39,12 @@ exports.deleteOrderItem = async (req, res) => {
 // Get all order items
 exports.getAllOrderItems = async (req, res) => {
     try {
+        console.log('step1');
         const orderItems = await OrderItem.find();
+        console.log('step1'+orderItems);
+        
         res.json(orderItems);
     } catch (error) {
-        res.status(500).json({ message: error.message });
+        res.status(400).json({ message: error.message });
     }
 }; 

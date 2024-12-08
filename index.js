@@ -16,6 +16,7 @@ const paymentRoutes = require('./routes/paymentRoutes');
 const orderRoutes = require('./routes/orderRoutes'); // Import orderRoutes
 const reviewRoutes = require('./routes/reviewRoutes');
 const orderItemsRoutes = require('./routes/orderItemsRoutes');
+const vouchersRoutes = require('./routes/vouchersRoutes'); // Import vouchersRoutes
 
 
 // Load environment variables
@@ -46,7 +47,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // Apply Routes
 app.use('/api/auth', authRoutes);
 app.use('/categories', categoryRoutes);
-app.use('/user',auth,userRoutes);
+app.use('/user',userRoutes);
 app.use('/cloudinary',cloudinaryRoutes);
 app.use('/GeneralData',generalDataRoutes);
 app.use('/api/products', productRoutes);
@@ -56,6 +57,7 @@ app.use('/api/payment', paymentRoutes);
 app.use('/orders', orderRoutes); // Use the order routes
 app.use('/reviews', reviewRoutes); // Changed from /review to /reviews
 app.use('/orderitems', orderItemsRoutes);
+app.use('/vouchers', vouchersRoutes); // Use the vouchers routes
 
 
 const PORT = process.env.PORT || 5000;

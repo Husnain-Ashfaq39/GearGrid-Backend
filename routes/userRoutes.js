@@ -1,6 +1,6 @@
 const express = require('express');
 const userController = require('../Controller/userController'); // Changed import to the full module
-const { getUserById, changePassword, updateUser, getUserData, changeProfilePicture } = userController; // Destructure after importing
+const { getUserById, changePassword, updateUser, getUserData, changeProfilePicture, getAllCustomers } = userController; 
 
 const router = express.Router();
 
@@ -15,5 +15,6 @@ router.put('/changePassword/:id', changePassword); // Added change password rout
 router.put('/updateUser/:id', updateUser); // Added update user route
 router.put('/changeProfilePicture/:id',upload.array('image1', 10), changeProfilePicture); // Added change profile picture route
 router.get('/getUserData', getUserData);
+router.get('/getAllCustomers', getAllCustomers);
 module.exports = router;
 

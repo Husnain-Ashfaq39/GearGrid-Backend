@@ -11,4 +11,11 @@ router.get('/all', orderController.getAllOrders);
 // Route to get an order by order ID
 router.get('/:orderId', orderController.getOrderById);
 
+// Route to update an order
+router.put('/:orderId', orderController.updateOrder);
+
+// Route to get total earnings
+// Changed the route to avoid conflict with ObjectId
+router.get('/earnings/total', orderController.getTotalEarnings);
+
 module.exports = router; 
