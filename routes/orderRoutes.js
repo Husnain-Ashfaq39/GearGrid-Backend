@@ -11,6 +11,9 @@ router.get('/all', orderController.getAllOrders);
 // Route to get an order by order ID
 router.get('/:orderId', orderController.getOrderById);
 
+
+router.get('/totalOrders', orderController.getTotalOrders);
+
 // Route to update an order
 router.put('/:orderId', orderController.updateOrder);
 
