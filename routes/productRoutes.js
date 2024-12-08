@@ -34,9 +34,9 @@ router.put('/update/:id',  productController.updateProduct);
 router.delete('/delete/:id', productController.deleteProduct);
 
 // Wishlist Routes (Protected with auth middleware)
-router.post('/add-to-wishlist/:productId',  productController.addToWishlist);
-router.delete('/remove-from-wishlist/:productId',  productController.removeFromWishlist);
-router.get('/get-wishlist/:userId',  productController.getWishlistItems);
+router.post('/wishlist/add-to-wishlist/:productId',  productController.addToWishlist);
+router.delete('/wishlist/remove-from-wishlist/:productId',  productController.removeFromWishlist);
+router.get('/wishlist/get-wishlist/:userId',  productController.getWishlistItems);
 
 // GET /api/products/trending
 // Get trending products based on order quantities
