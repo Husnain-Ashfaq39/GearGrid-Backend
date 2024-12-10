@@ -43,7 +43,6 @@ exports.getTotalOrders = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
-};
 
 // Controller to update an order by order ID
 exports.updateOrder = async (req, res) => {

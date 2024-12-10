@@ -17,6 +17,7 @@ const orderRoutes = require('./routes/orderRoutes'); // Import orderRoutes
 const reviewRoutes = require('./routes/reviewRoutes');
 const orderItemsRoutes = require('./routes/orderItemsRoutes');
 const vouchersRoutes = require('./routes/vouchersRoutes'); // Import vouchersRoutes
+const blogRoutes = require('./routes/blogRoutes'); // Import blog routes
 
 
 // Load environment variables
@@ -58,6 +59,7 @@ app.use('/orders', orderRoutes); // Use the order routes
 app.use('/reviews', reviewRoutes); // Changed from /review to /reviews
 app.use('/orderitems', orderItemsRoutes);
 app.use('/vouchers', vouchersRoutes); // Use the vouchers routes
+app.use('/blogs', blogRoutes); // Set the base route for blogs
 
 
 

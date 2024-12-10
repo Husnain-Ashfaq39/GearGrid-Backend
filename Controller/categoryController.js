@@ -50,69 +50,67 @@ const getAllCategories = async (req, res) => {
 // Controller function to handle updating a category
 const updateCategory = async (req, res) => {
   try {
-    const { name, description, parentCategoryId, images } = req.body;
+    const { name, description, parentCategoryId } = req.body;
+    
     const category = await Categories.findById(req.params.id);
 
     if (!category) {
       return res.status(404).send('Category not found');
     }
 
-    let updatedImages = category.image;
-    if (images && images.length > 0) {
-      if (category.image.length > 0) {
-        for (const image of category.image) {
-          await deleteImageFromCloudinary(image);
-        }
-      }
-      updatedImages = await uploadImagesToCloudinary(images);
+    let uploadedImage = [];
+    if (req.files && req.files.length > 0) {
+      uploadedImage = await uploadImagesToCloudinary(req.files);
     }
 
-    category.name = name || category.name;
-    category.description = description || category.description;
-    category.parentCategoryId = parentCategoryId || category.parentCategoryId;
-    category.image = updatedImages;
+    category.name = name !== undefined ? name : category.name;
+    category.description = description !== undefined ? description : category.description;
+    category.parentCategoryId = parentCategoryId !== undefined ? parentCategoryId : category.parentCategoryId;
+    category.image = uploadedImage.length > 0 ? uploadedImage : category.image;
 
     await category.save();
     res.status(200).json(category);
   } catch (error) {
-    console.error(error);
+    console.error("Error updating category:", error);
     res.status(500).send('Error updating category');
   }
 };
 
-const getCategoriesWithPagination = async (req, res) => {
-  const { page = 1, limit = 10 } = req.query; // Default to page 1 and limit 10
-  const skip = (page - 1) * limit;
-
-  try {
-    console.log(`Fetching categories for page ${page} with limit ${limit}...`); // Debug log
-
-    // Fetch categories with pagination
-    const categories = await Categories.find()
-      .skip(skip)
-      .limit(parseInt(limit));
-
-    const totalCategories = await Categories.countDocuments(); // Get total count for pagination
-    const totalPages = Math.ceil(totalCategories / limit);
-
-    console.log(`Categories fetched successfully: ${categories.length} items`); // Debug log
-
-    // Return the categories and pagination info as a JSON response
-    res.status(200).json({
-      totalCategories,
-      totalPages,
-      currentPage: page,
-      categories,
-    });
-  } catch (error) {
-    console.error('Error fetching categories with pagination:', error); // More detailed error log
-    res.status(500).send('Error fetching categories with pagination'); // Return appropriate error message
-  }
+// Method to delete a category
+const deleteCategory = async (req, res) => {
+    const categoryId = req.params.id;
+    console.log('cat id '+categoryId);
+    
+    try {
+        // Assuming you have a Category model to interact with your database
+        const result = await Categories.findByIdAndDelete(categoryId);
+        if (!result) {
+            return res.status(404).json({ message: 'Category not found' });
+        }
+        res.status(200).json({ message: 'Category deleted successfully' });
+    } catch (error) {
+        res.status(500).json({ message: 'Error deleting category', error });
+    }
 };
 
+// Method to get a category by ID
+const getCategoryById = async (req, res) => {
+    const categoryId = req.params.id;
+    try {
+        const category = await Categories.findById(categoryId);
+        if (!category) {
+            return res.status(404).json({ message: 'Category not found' });
+        }
+        res.status(200).json(category);
+    } catch (error) {
+        res.status(500).json({ message: 'Error fetching category', error });
+    }
+};
 
 module.exports = {
   addCategory,
   getAllCategories,
   updateCategory,
+  deleteCategory,
+  getCategoryById,
 };
