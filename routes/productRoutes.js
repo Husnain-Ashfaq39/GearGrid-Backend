@@ -1,6 +1,7 @@
 const express = require('express');
 const multer = require('multer');
 const productController = require('../Controller/productController'); // Import the controller
+const auth = require('../middlewares/auth'); // Import auth middleware
 
 const router = express.Router();
 
@@ -31,6 +32,11 @@ router.put('/update/:id',  productController.updateProduct);
 // DELETE /api/products/delete/:id
 // Delete a product by ID
 router.delete('/delete/:id', productController.deleteProduct);
+
+// Wishlist Routes (Protected with auth middleware)
+router.post('/wishlist/add-to-wishlist/:productId',  productController.addToWishlist);
+router.delete('/wishlist/remove-from-wishlist/:productId',  productController.removeFromWishlist);
+router.get('/wishlist/get-wishlist/:userId',  productController.getWishlistItems);
 
 // GET /api/products/trending
 // Get trending products based on order quantities

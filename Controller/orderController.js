@@ -67,4 +67,79 @@ exports.getTotalEarnings = async (req, res) => {
         console.error("Error retrieving total earnings:", error); // Log the error for debugging
         res.status(500).json({ message: 'Error retrieving total earnings' });
     }
-}; 
+};
+
+// Controller to get total orders for a specific user
+exports.getUserTotalOrders = async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        const totalOrders = await Order.countDocuments({ userId: userId });
+        res.status(200).json({ totalOrders });
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
+
+// Controller to get user order statistics by month
+exports.getUserOrderStats = async (req, res) => {
+    try {
+        const userId = req.params.userId;
+        
+        // Get orders for the last 12 months
+        const twelveMonthsAgo = new Date();
+        twelveMonthsAgo.setMonth(twelveMonthsAgo.getMonth() - 11);
+        
+        const orders = await Order.aggregate([
+            {
+                $match: {
+                    userId: userId,
+                    createdAt: { $gte: twelveMonthsAgo }
+                }
+            },
+            {
+                $group: {
+                    _id: {
+                        year: { $year: "$createdAt" },
+                        month: { $month: "$createdAt" }
+                    },
+                    count: { $sum: 1 }
+                }
+            },
+            {
+                $sort: {
+                    "_id.year": 1,
+                    "_id.month": 1
+                }
+            }
+        ]);
+
+        // Transform the data to include all months with 0 if no orders
+        const months = [
+            "January", "February", "March", "April", "May", "June",
+            "July", "August", "September", "October", "November", "December"
+        ];
+
+        const currentDate = new Date();
+        const stats = [];
+        
+        for (let i = 0; i < 12; i++) {
+            const date = new Date(twelveMonthsAgo);
+            date.setMonth(twelveMonthsAgo.getMonth() + i);
+            
+            const monthOrder = orders.find(order => 
+                order._id.year === date.getFullYear() && 
+                order._id.month === (date.getMonth() + 1)
+            );
+            
+            stats.push({
+                month: months[date.getMonth()],
+                count: monthOrder ? monthOrder.count : 0
+            });
+        }
+
+        res.status(200).json({ stats });
+    } catch (error) {
+        console.error("Error retrieving user order stats:", error);
+        res.status(500).json({ error: error.message });
+    }
+};

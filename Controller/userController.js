@@ -1,12 +1,14 @@
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const { uploadImagesToCloudinary } = require('../cloudinaryServices');
+const mongoose = require('mongoose');
+
 // Get User by ID
 exports.getUserById = async (req, res) => {
     try {
         const userId = req.params.id;
-        const user = await User.findById(userId).select('name email role _id location phone'); // Select only name, email, role, and _id
-        if (!user) {
+        const user = await User.findById(userId).select('-password'); // Exclude password
+        if (!user) {    
             return res.status(404).json({ message: 'User not found' });
         }
         res.status(200).json(user);
@@ -15,7 +17,6 @@ exports.getUserById = async (req, res) => {
         res.status(500).json({ error: 'Server error while fetching user' });
     }
 };
-
 // Update User
 exports.updateUser = async (req, res) => {
     try {
